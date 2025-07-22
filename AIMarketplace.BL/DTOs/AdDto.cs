@@ -12,5 +12,6 @@ namespace AIMarketplace.BL.DTOs
         public string? Description { get; set; }
         public string? Tags {  get; set; }
         public string? Category {  get; set; }
+        public double Price {  get; set; }
     }
 }

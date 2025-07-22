@@ -37,14 +37,28 @@ namespace AIMarketplace.BL.Services.AdCreationService
             {
                 return validation;
             }
+
+            if (ad.Price < 0)
+            {
+                return new()
+                {
+                    Status = AdCreationStatus.InvalidData,
+                    ReturnObject = "Price cannot be negative"
+                };
+            }
             #endregion
         
-            Ad currentAd = new() //temporary data for test without AI
+            Ad currentAd = new()
             { 
                 Description = ad.Description,
                 Title = ad.Title,
                 Category = ad.Category,
                 Tags = ad.Tags,
+                Price = ad.Price,
+                DateCreated = DateTime.UtcNow,
+                DateUpdated = DateTime.MinValue,
+                Views = 0,
+                Status = AdStatus.Published,
                 VectorEmbedding = "vectorembedding1"
             };
 
@@ -57,7 +71,7 @@ namespace AIMarketplace.BL.Services.AdCreationService
             };
         }
 
-        public async Task<AdCreationResult> UpdateAd(Guid id, AdDto ad)
+        public async Task<AdCreationResult> UpdateAd(Guid id, AdDto ad, bool isSold)
         {
             #region Validation
 
@@ -83,7 +97,20 @@ namespace AIMarketplace.BL.Services.AdCreationService
             }
             #endregion
 
-            //3. Title validated and updated
+            //3. Sell validation
+            if (isSold && entity.Status != AdStatus.Sold)
+            {
+                entity.Status = AdStatus.Sold;
+            }
+            else if (isSold && entity.Status == AdStatus.Sold)
+            {
+                return new AdCreationResult()
+                {
+                    Status = AdCreationStatus.InvalidData,
+                    ReturnObject = "The ad can't be updated. It's already sold"
+                };
+            }
+            //4. Title validated and updated
             var validation = new AdCreationResult();
 
             if (!string.IsNullOrWhiteSpace(ad.Title))
@@ -97,7 +124,7 @@ namespace AIMarketplace.BL.Services.AdCreationService
                 entity.Title = ad.Title;
             }
 
-            //4. Description validated and updated
+            //5. Description validated and updated
             if(!string.IsNullOrWhiteSpace(ad.Description))
             {
                 validation = ValidateDescription(ad.Description);
@@ -109,7 +136,7 @@ namespace AIMarketplace.BL.Services.AdCreationService
                 entity.Description = ad.Description;
             }
 
-            //5. Category validated and updated
+            //6. Category validated and updated
             if(!string.IsNullOrWhiteSpace(ad.Category))
             {
                 validation = ValidateString(ad.Category);
@@ -121,7 +148,7 @@ namespace AIMarketplace.BL.Services.AdCreationService
                 entity.Category = ad.Category;
             }
 
-            //6. Tags validated and updated
+            //7. Tags validated and updated
             if(!string.IsNullOrEmpty(ad.Tags))
             {
                 validation = ValidateString(ad.Tags); // other validation will be provided later
@@ -132,9 +159,24 @@ namespace AIMarketplace.BL.Services.AdCreationService
 
                 entity.Tags = ad.Tags;
             }
-
+            
+            //8. Price validation
+            if (ad.Price > 0)
+            {
+                entity.Price = ad.Price;
+            }
+            else if (ad.Price < 0)
+            {
+                new AdCreationResult()
+                {
+                    Status = AdCreationStatus.InvalidData,
+                    ReturnObject = "Price cannot be negative"
+                };
+            }
+            
             try
             {
+                entity.DateUpdated = DateTime.UtcNow;
                 await _adRepos.Update(entity);
                 return new()
                 {
@@ -150,8 +192,6 @@ namespace AIMarketplace.BL.Services.AdCreationService
                     ReturnObject = $"Error while updating\n\n {ex.Message}"
                 };
             }
-            
-            
         }
 
         public async Task<AdCreationResult> DeleteAd(Guid id)
@@ -208,6 +248,8 @@ namespace AIMarketplace.BL.Services.AdCreationService
             try
             {
                 var advertisement = await _adRepos.GetById(adId);
+                advertisement.Views += 1;
+                await _adRepos.Update(advertisement);
                 return new AdCreationResult()
                 {
                     Status = AdCreationStatus.Success,
@@ -230,6 +272,8 @@ namespace AIMarketplace.BL.Services.AdCreationService
             string result = string.Empty;
             foreach (var ad in allAds)
             {
+                ad.Views += 1;
+                await _adRepos.Update(ad);
                 result += ShowInfo(ad);
                 result += "\n\n";
             }
@@ -242,7 +286,12 @@ namespace AIMarketplace.BL.Services.AdCreationService
                     $"Title: {ad.Title}\n" +
                     $"Description: {ad.Description}\n" +
                     $"Category: {ad.Category}\n" +
-                    $"Tags: {ad.Tags}";
+                    $"Tags: {ad.Tags}\n" +
+                    $"Price: {ad.Price}\n" +
+                    $"DateCreated: {ad.DateCreated}\n" +
+                    $"DateUpdated: {ad.DateUpdated}\n" +
+                    $"Views: {ad.Views}\n" +
+                    $"Status: {ad.Status}\n";
         }
 
         private AdCreationResult ValidateDescription(string description)

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AIMarketplace.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialMac : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,12 +15,12 @@ namespace AIMarketplace.DAL.Migrations
                 name: "Ads",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Tags = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    VectorEmbedding = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Title = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
+                    Category = table.Column<string>(type: "TEXT", nullable: false),
+                    Tags = table.Column<string>(type: "TEXT", nullable: false),
+                    VectorEmbedding = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

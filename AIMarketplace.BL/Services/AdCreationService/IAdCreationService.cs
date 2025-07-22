@@ -13,7 +13,7 @@ namespace AIMarketplace.BL.Services.AdCreationService
         public Task<AdCreationResult> CreateAd(AdDto ad);
         public Task<AdCreationResult> GetAdById(Guid id);
         public Task<AdCreationResult> DeleteAd(Guid id);
-        public Task<AdCreationResult> UpdateAd(Guid id, AdDto ad);
+        public Task<AdCreationResult> UpdateAd(Guid id, AdDto ad, bool isSold);
         public Task<string> ShowAllAds();
     }
 }
