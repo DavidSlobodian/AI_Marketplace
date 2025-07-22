@@ -1,0 +1,6 @@
+@AIMarketplace_HostAddress = http://localhost:5205
+
+GET {{AIMarketplace_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
