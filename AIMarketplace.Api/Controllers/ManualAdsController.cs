@@ -36,10 +36,11 @@ namespace AIMarketplace.Api.Controllers
                 _ => BadRequest(result.ReturnObject)
             };
         }
+
         [HttpPut("/update/{id}")]
-        public async Task<IActionResult> Update(Guid id, AdDto ad)
+        public async Task<IActionResult> Update(Guid id, AdDto ad, bool isSold = false)
         {
-            var result = await _adService.UpdateAd(id, ad);
+            var result = await _adService.UpdateAd(id, ad, isSold);
             return result.Status switch
             {
                 AdCreationStatus.Success => Ok(result.ReturnObject),

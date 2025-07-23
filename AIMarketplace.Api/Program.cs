@@ -15,8 +15,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-string connectStr = builder.Configuration.GetConnectionString("DBConnection");
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectStr));
+string connectStr = builder.Configuration.GetConnectionString("DBConnectionMac");
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectStr));
 
 builder.Services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
 builder.Services.AddScoped<IAdCreationService, AdCreationService>();
